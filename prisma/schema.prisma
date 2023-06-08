@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String  @id @default(cuid())
+  email          String  @unique
+  password       String
+  first_name     String
+  last_name      String
+  date_of_birth  String
+  student        Boolean
+  teacher        Boolean
+  students       Student[]
+  teachers       Teacher[]
+}
+
+model Student {
+  id               String   @id @default(cuid())
+  user_id          String
+  User             User     @relation(fields: [user_id], references: [id])
+  grades_id        String[]
+  absences_courses_id String[]
+  grades           Grade[]
+}
+
+model Teacher {
+  id          String   @id @default(cuid())
+  user_id     String
+  User        User     @relation(fields: [user_id], references: [id])
+  courses_id  String[]
+  modules     Module[]
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  name        String
+  teacher_id  String
+  Teacher     Teacher  @relation(fields: [teacher_id], references: [id])
+  students_id String[]
+  courses     Course[]
+}
+
+model Course {
+  id        String   @id @default(cuid())
+  module_id String
+  Module    Module   @relation(fields: [module_id], references: [id])
+  date      String
+  room      String
+  grades    Grade[]
+}
+
+model Grade {
+  id         String  @id @default(cuid())
+  grade      Float
+  course_id  String
+  student_id String
+  Course     Course  @relation(fields: [course_id], references: [id])
+  Student    Student @relation(fields: [student_id], references: [id])
+}
